@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>Example of server request using Client-Challenge in order to mitigate resource starvation</title>
+	<meta charset="utf-8">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha3/0.8.0/sha3.min.js"></script>
+	<script src="../ClientChallenge.js"></script>
+
+<script>
+
+let error_cb = function (request, status, error) {
+	$("#out").val("Error!");
+}
+
+let callback = function(params, vts_validation_result) {
+	$.ajax({
+		type: "POST",
+		url: "ajax_example.php",
+		data: {
+			// This is required:
+			"vts_validation_result": vts_validation_result,
+
+			// This you can set yourself:
+			"action": "add_numbers",
+			"a": params['a'],
+			"b": params['b']
+		},
+		success: function(data) {
+			$("#out").val(data["result"]);
+		},
+		error: error_cb
+	});
+}
+
+function calc() {
+	var a = $("#in_a").val();
+	var b = $("#in_b").val();
+	var params = {
+		"a": a,
+		"b": b
+	};
+	$("#out").val("Please wait...");
+	vts_validated_call("ajax_get_challenge.php", callback, params, error_cb);
+}
+
+</script>
+</head>
+
+<body>
+
+<h2>Example of server request using Client-Challenge in order to mitigate resource starvation</h2>
+
+<p><input id="in_a" value="2"> + <input id="in_b" value="3"> = <input id="out"> <input type="button" onclick="calc()" value="Calculate"></p>
+
+</body>
+
+</html>

@@ -1,0 +1,22 @@
+{
+	"name": "danielmarschall/php_clientchallenge",
+	"description": "Server requests using client-challenges in order to mitigate resource starvation",
+	"version": "1.0",
+	"type": "package",
+	"homepage": "https://www.viathinksoft.com/projects/php_clientchallenge",
+	"authors": [
+		{
+			"name": "Daniel Marschall",
+			"email": "info@daniel-marschall.de",
+			"homepage": "https://www.daniel-marschall.de/"
+		}
+	],
+	"license": [
+		"Apache-2.0"
+	],
+	"prefer-dist": true,
+	"require": {
+		"php": ">=7.0",
+		"n-other/php-sha3": "*@dev"
+	}
+}
