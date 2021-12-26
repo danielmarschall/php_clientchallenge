@@ -21,33 +21,59 @@ namespace ViaThinkSoft\RateLimitingChallenge;
 
 class ClientChallenge {
 
-	private static function sha3_512($password, $raw_output=false) {
+	private static function sha3_512($message, $raw_output=false) {
         	if (version_compare(PHP_VERSION, '7.1.0') >= 0) {
-	                return hash('sha3-512', $password, $raw_output);
+	                return hash('sha3-512', $message, $raw_output);
         	} else {
-	                return \bb\Sha3\Sha3::hash($password, 512, $raw_output);
+	                return \bb\Sha3\Sha3::hash($message, 512, $raw_output);
         	}
 	}
 
-	public static function checkValidation($max_time=10) {
+	private static function sha3_512_hmac($message, $key, $raw_output=false) {
+		// RFC 2104 HMAC
+        	if (version_compare(PHP_VERSION, '7.1.0') >= 0) {
+	                return hash_hmac('sha3-512', $message, $key, $raw_output);
+        	} else {
+			$blocksize = 576; // block size of sha-512!
 
-		if (!isset($_REQUEST['vts_validation_result'])) throw new Exception('No challenge response found');
+			if (strlen($key) > ($blocksize/8)) {
+				$k_ = sha3_512($key,true);
+			} else {
+				$k_ = $key;
+			}
 
-		list($starttime, $ip_target, $challenge, $answer) = @json_decode($_REQUEST['vts_validation_result'], true);
+			$k_opad = str_repeat(chr(0x5C),($blocksize/8));
+			$k_ipad = str_repeat(chr(0x36),($blocksize/8));
+			for ($i=0; $i<strlen($k_); $i++) {
+				$k_opad[$i] = $k_opad[$i] ^ $k_[$i];
+				$k_ipad[$i] = $k_ipad[$i] ^ $k_[$i];
+			}
+
+			return sha3_512($k_opad . sha3_512($k_ipad . $message, true));
+        	}
+	}
+
+	public static function checkValidation($max_time=10, $server_secret) {
+
+		if (!isset($_REQUEST['vts_validation_result'])) throw new \Exception('No challenge response found');
+
+		list($starttime, $ip_target, $challenge, $answer, $challenge_integrity) = @json_decode($_REQUEST['vts_validation_result'], true);
 
 		if ($ip_target != $_SERVER['REMOTE_ADDR']) {
-			throw new Exception('Wrong IP');
+			throw new \Exception('Wrong IP');
 		} else if (time()-$starttime > $max_time) {
-			throw new Exception('Challenge expired');
+			throw new \Exception('Challenge expired');
+		} else if ($challenge_integrity != self::sha3_512_hmac($challenge,$server_secret)) {
+			throw new \Exception('Challenge integrity failed');
 		} else if ($challenge !== self::sha3_512($starttime.'/'.$ip_target.'/'.$answer)) {
-			throw new Exception('Wrong answer');
+			throw new \Exception('Wrong answer');
 		} else {
 			return true;
 		}
 	}
 
 	// This is only called by ajax_get_challenge.php
-	public static function createChallenge($complexity=500000) {
+	public static function createChallenge($complexity=500000, $server_secret) {
 
 		$min = 0;
 		$max = $complexity;
@@ -60,7 +86,9 @@ class ClientChallenge {
 
 		$challenge = self::sha3_512($starttime.'/'.$ip_target.'/'.$random);
 
-		$send_to_client = array($starttime, $ip_target, $challenge, $min, $max);
+		$challenge_integrity = self::sha3_512_hmac($challenge,$server_secret);
+
+		$send_to_client = array($starttime, $ip_target, $challenge, $min, $max, $challenge_integrity);
 
 		header('Content-Type:application/json');
 		die(json_encode($send_to_client));

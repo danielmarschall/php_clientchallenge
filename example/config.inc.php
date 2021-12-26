@@ -17,12 +17,6 @@
  * limitations under the License.
  */
 
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-	require_once __DIR__ . '/../vendor/autoload.php';
-}
-
-require_once __DIR__ . '/../ClientChallenge.class.php';
-
-require_once __DIR__ . '/config.inc.php';
-
-\ViaThinkSoft\RateLimitingChallenge\ClientChallenge::createChallenge(COMPLEXITY, VTS_CS_SERVER_SECRET);
+define('VTS_CS_SERVER_SECRET', '1234567890'); // PLEASE CHANGE THIS VALUE TO SOMETHING RANDOM!
+define('MAX_TIME', 10); // seconds
+define('COMPLEXITY', 500000);

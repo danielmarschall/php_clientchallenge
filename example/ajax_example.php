@@ -23,12 +23,18 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 
 require_once __DIR__ . '/../ClientChallenge.class.php';
 
-define('MAX_TIME', 10); // seconds
+require_once __DIR__ . '/config.inc.php';
 
 if (isset($_REQUEST['action']) && ($_REQUEST['action'] === 'add_numbers')) {
 
 	// Check request field "vts_validation_result" for valid response of the Challenge
-	\ViaThinkSoft\RateLimitingChallenge\ClientChallenge::checkValidation(MAX_TIME);
+	try {
+		\ViaThinkSoft\RateLimitingChallenge\ClientChallenge::checkValidation(MAX_TIME, VTS_CS_SERVER_SECRET);
+	} catch (\Exception $e) {
+		$res = array("error" => $e->getMessage());
+		header('Content-Type:application/json');
+		die(json_encode($res));
+	}
 
 	// Do your stuff here. Example:
 	$a = $_REQUEST['a'];

@@ -28,7 +28,12 @@ let callback = function(params, vts_validation_result) {
 			"b": params['b']
 		},
 		success: function(data) {
-			$("#out").val(data["result"]);
+			if ("error" in data) {
+				$("#out").val('ERROR');
+				alert(data["error"]);
+			} else {
+				$("#out").val(data["result"]);
+			}
 		},
 		error: error_cb
 	});

@@ -27,10 +27,11 @@ function vts_validated_call(getChallengeScript, callback, params, error_cb) {
 			var challenge = data[2];
 			var min = data[3];
 			var max = data[4];
+			var challenge_integrity = data[5];
 			for (i=min; i<=max; i++) {
 				if (challenge == sha3_512(starttime+"/"+ip_target+"/"+i)) {
 					var answer = i;
-					var vts_validation_result = JSON.stringify([starttime, ip_target, challenge, answer]);
+					var vts_validation_result = JSON.stringify([starttime, ip_target, challenge, answer, challenge_integrity]);
 					callback(params, vts_validation_result);
 					break;
 				}
