@@ -25,7 +25,7 @@ class ClientChallenge {
         	if (version_compare(PHP_VERSION, '7.1.0') >= 0) {
 	                return hash('sha3-512', $message, $raw_output);
         	} else {
-	                return \bb\Sha3\Sha3::hash($message, 512, $raw_output);
+	                return \bb\Sha3\Sha3::hash($message, 512, $raw_output); /** @phpstan-ignore-line */
         	}
 	}
 
@@ -37,7 +37,7 @@ class ClientChallenge {
 			$blocksize = 576; // block size of sha-512!
 
 			if (strlen($key) > ($blocksize/8)) {
-				$k_ = sha3_512($key,true);
+				$k_ = self::sha3_512($key,true);
 			} else {
 				$k_ = $key;
 			}
@@ -49,7 +49,7 @@ class ClientChallenge {
 				$k_ipad[$i] = $k_ipad[$i] ^ $k_[$i];
 			}
 
-			return sha3_512($k_opad . sha3_512($k_ipad . $message, true));
+			return self::sha3_512($k_opad . self::sha3_512($k_ipad . $message, true));
         	}
 	}
 
