@@ -7,6 +7,7 @@ parameters:
 	excludePaths:
 		analyse:
 			- Sha3.php
+			- vendor
 		analyseAndScan:
 			- .phpstan.tmp
 	tmpDir: .phpstan.tmp

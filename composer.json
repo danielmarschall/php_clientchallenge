@@ -1,7 +1,7 @@
 {
 	"name": "danielmarschall/php_clientchallenge",
 	"description": "Server requests using client-challenges in order to mitigate resource starvation",
-	"version": "1.1",
+	"version": "1.1.1",
 	"type": "package",
 	"homepage": "https://www.viathinksoft.com/projects/php_clientchallenge",
 	"authors": [
@@ -18,5 +18,8 @@
 	"require": {
 		"php": ">=7.0",
 		"danielmarschall/php-sha3": "*@dev"
+	},
+	"require-dev": {
+		"phpstan/phpstan": "^1.8"
 	}
 }

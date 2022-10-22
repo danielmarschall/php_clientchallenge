@@ -53,7 +53,7 @@ class ClientChallenge {
 		}
 	}
 
-	private static function getOpenTransFileName($ip_target, $random) {
+	private static function getOpenTransFileName($ip_target, $random, $server_secret) {
 		$dir = defined('VTS_CS_OPEN_TRANS_DIR') ? VTS_CS_OPEN_TRANS_DIR : __DIR__.'/cache';
 		if ($dir == '') $dir = '.'; /** @phpstan-ignore-line */
 
@@ -66,12 +66,12 @@ class ClientChallenge {
 			@unlink($file);
 		}
 
-		return $dir.'/vts_client_challenge_'.self::sha3_512($ip_target.'/'.$random).'.tmp';
+		return $dir.'/vts_client_challenge_'.self::sha3_512_hmac($ip_target.'/'.$random, $server_secret).'.tmp';
 	}
 
 	public static function checkValidation($client_response, $max_time=10, $server_secret) {
 		list($starttime, $ip_target, $challenge, $answer, $challenge_integrity) = $client_response;
-		$open_trans_file = self::getOpenTransFileName($ip_target, $answer);
+		$open_trans_file = self::getOpenTransFileName($ip_target, $answer, $server_secret);
 
 		if ($ip_target != $_SERVER['REMOTE_ADDR']) {
 			throw new \Exception('Wrong IP');
@@ -106,7 +106,7 @@ class ClientChallenge {
 
 		$send_to_client = array($starttime, $ip_target, $challenge, $min, $max, $challenge_integrity);
 
-		$open_trans_file = self::getOpenTransFileName($ip_target, $random);
+		$open_trans_file = self::getOpenTransFileName($ip_target, $random, $server_secret);
 		if (@file_put_contents($open_trans_file, '') === false) {
 			throw new \Exception("Cannot write $open_trans_file");
 		}
