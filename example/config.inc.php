@@ -2,7 +2,7 @@
 
 /*
  * php_clientchallenge
- * Copyright 2021 Daniel Marschall, ViaThinkSoft
+ * Copyright 2021-2022 Daniel Marschall, ViaThinkSoft
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,5 +18,5 @@
  */
 
 define('VTS_CS_SERVER_SECRET', '1234567890'); // PLEASE CHANGE THIS VALUE TO SOMETHING RANDOM!
-define('MAX_TIME', 10); // seconds
-define('COMPLEXITY', 500000);
+define('MAX_TIME', 15); // seconds
+define('COMPLEXITY', 50000);

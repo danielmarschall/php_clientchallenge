@@ -2,7 +2,7 @@
 
 /*
  * php_clientchallenge
- * Copyright 2021 Daniel Marschall, ViaThinkSoft
+ * Copyright 2021-2022 Daniel Marschall, ViaThinkSoft
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,9 @@ if (isset($_REQUEST['action']) && ($_REQUEST['action'] === 'add_numbers')) {
 
 	// Check request field "vts_validation_result" for valid response of the Challenge
 	try {
-		\ViaThinkSoft\RateLimitingChallenge\ClientChallenge::checkValidation(MAX_TIME, VTS_CS_SERVER_SECRET);
+		if (!isset($_REQUEST['vts_validation_result'])) throw new \Exception('No challenge response found');
+		$client_response = @json_decode($_REQUEST['vts_validation_result'], true);
+		\ViaThinkSoft\RateLimitingChallenge\ClientChallenge::checkValidation($client_response, MAX_TIME, VTS_CS_SERVER_SECRET);
 	} catch (\Exception $e) {
 		$res = array("error" => $e->getMessage());
 		header('Content-Type:application/json');

@@ -1,7 +1,7 @@
 {
 	"name": "danielmarschall/php_clientchallenge",
 	"description": "Server requests using client-challenges in order to mitigate resource starvation",
-	"version": "1.0",
+	"version": "1.1",
 	"type": "package",
 	"homepage": "https://www.viathinksoft.com/projects/php_clientchallenge",
 	"authors": [

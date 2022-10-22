@@ -2,7 +2,7 @@
 
 /*
  * php_clientchallenge
- * Copyright 2021 Daniel Marschall, ViaThinkSoft
+ * Copyright 2021-2022 Daniel Marschall, ViaThinkSoft
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,4 +25,11 @@ require_once __DIR__ . '/../ClientChallenge.class.php';
 
 require_once __DIR__ . '/config.inc.php';
 
-\ViaThinkSoft\RateLimitingChallenge\ClientChallenge::createChallenge(COMPLEXITY, VTS_CS_SERVER_SECRET);
+try {
+	$res = \ViaThinkSoft\RateLimitingChallenge\ClientChallenge::createChallenge(COMPLEXITY, VTS_CS_SERVER_SECRET);
+} catch (\Exception $e) {
+	$res = array("error" => $e->getMessage());
+}
+
+header('Content-Type:application/json');
+die(json_encode($res));

@@ -12,6 +12,7 @@
 
 let error_cb = function (request, status, error) {
 	$("#out").val("Error!");
+	alert(error);
 }
 
 let callback = function(params, vts_validation_result) {
@@ -29,8 +30,7 @@ let callback = function(params, vts_validation_result) {
 		},
 		success: function(data) {
 			if ("error" in data) {
-				$("#out").val('ERROR');
-				alert(data["error"]);
+				error_cb(null,null,data["error"]);
 			} else {
 				$("#out").val(data["result"]);
 			}
