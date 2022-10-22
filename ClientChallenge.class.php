@@ -58,7 +58,7 @@ class ClientChallenge {
 		if ($dir == '') $dir = '.'; /** @phpstan-ignore-line */
 
 		// First, delete challenges which were never completed
-		$files = glob($dir.'/*.tmp');
+		$files = glob($dir.'/vts_client_challenge_*.tmp');
 		$expire = strtotime('-3 DAYS');
 		foreach ($files as $file) {
 			if (!is_file($file)) continue;
@@ -66,7 +66,7 @@ class ClientChallenge {
 			@unlink($file);
 		}
 
-		return $dir.'/'.self::sha3_512($ip_target.'/'.$random).'.tmp';
+		return $dir.'/vts_client_challenge_'.self::sha3_512($ip_target.'/'.$random).'.tmp';
 	}
 
 	public static function checkValidation($client_response, $max_time=10, $server_secret) {
@@ -84,7 +84,7 @@ class ClientChallenge {
 		} else if (!file_exists($open_trans_file)) {
 			throw new \Exception('Challenge submitted twice or transaction missing');
 		} else {
-			unlink($open_trans_file);
+			@unlink($open_trans_file);
 			return true;
 		}
 	}
