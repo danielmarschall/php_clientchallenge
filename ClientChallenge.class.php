@@ -23,46 +23,36 @@ class ClientChallenge {
 
 	const OPEN_TRANS_DIR = __DIR__.'/cache';
 
-	private static function sha3_512($message, $raw_output=false) {
-        	if (version_compare(PHP_VERSION, '7.1.0') >= 0) {
-	                return hash('sha3-512', $message, $raw_output);
-        	} else {
-			// Download file if required (usually composer should do it)
-			if (file_exists(__DIR__.'/Sha3.php')) include_once __DIR__.'/Sha3.php';
-			if (!class_exists('\bb\Sha3\Sha3')) {
-				$sha3_lib = file_get_contents('https://raw.githubusercontent.com/danielmarschall/php-sha3/master/src/Sha3.php');
-				if (file_put_contents(__DIR__.'/Sha3.php', $sha3_lib)) {
-					include_once __DIR__.'/Sha3.php';
-				} else {
-					eval('?>'.$sha3_lib);
-				}
+	private static function tryDownloadPhpSha3() {
+		// Download file if required (usually composer should do it)
+		if (file_exists(__DIR__.'/Sha3.php')) include_once __DIR__.'/Sha3.php';
+		if (!class_exists('\bb\Sha3\Sha3')) {
+			$sha3_lib = file_get_contents('https://raw.githubusercontent.com/danielmarschall/php-sha3/master/src/Sha3.php');
+			if (@file_put_contents(__DIR__.'/Sha3.php', $sha3_lib)) {
+				include_once __DIR__.'/Sha3.php';
+			} else {
+				eval('?>'.$sha3_lib);
 			}
-	                return \bb\Sha3\Sha3::hash($message, 512, $raw_output);
-        	}
+		}
+	}
+
+	private static function sha3_512($message, $raw_output=false) {
+		if (version_compare(PHP_VERSION, '7.1.0') >= 0) {
+			return hash('sha3-512', $message, $raw_output);
+		} else {
+			self::tryDownloadPhpSha3();
+			return \bb\Sha3\Sha3::hash($message, 512, $raw_output);
+		}
 	}
 
 	private static function sha3_512_hmac($message, $key, $raw_output=false) {
 		// RFC 2104 HMAC
-        	if (version_compare(PHP_VERSION, '7.1.0') >= 0) {
-	                return hash_hmac('sha3-512', $message, $key, $raw_output);
-        	} else {
-			$blocksize = 576; // block size of sha-512!
-
-			if (strlen($key) > ($blocksize/8)) {
-				$k_ = self::sha3_512($key,true);
-			} else {
-				$k_ = $key;
-			}
-
-			$k_opad = str_repeat(chr(0x5C),($blocksize/8));
-			$k_ipad = str_repeat(chr(0x36),($blocksize/8));
-			for ($i=0; $i<strlen($k_); $i++) {
-				$k_opad[$i] = $k_opad[$i] ^ $k_[$i];
-				$k_ipad[$i] = $k_ipad[$i] ^ $k_[$i];
-			}
-
-			return self::sha3_512($k_opad . self::sha3_512($k_ipad . $message, true));
-        	}
+		if (version_compare(PHP_VERSION, '7.1.0') >= 0) {
+			return hash_hmac('sha3-512', $message, $key, $raw_output);
+		} else {
+			self::tryDownloadPhpSha3();
+			return \bb\Sha3\Sha3::hash_hmac($message, $key, 512, $raw_output);
+		}
 	}
 
 	private static function getOpenTransFileName($ip_target, $random) {

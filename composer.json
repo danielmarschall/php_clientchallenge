@@ -17,6 +17,6 @@
 	"prefer-dist": true,
 	"require": {
 		"php": ">=7.0",
-		"n-other/php-sha3": "*@dev"
+		"danielmarschall/php-sha3": "*@dev"
 	}
 }

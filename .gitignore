@@ -1,5 +1,7 @@
 vendor/
+cache/
 composer.lock
 composer.phar
 Sha3.php
+.phpstan.tmp
 
