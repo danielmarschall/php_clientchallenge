@@ -21,8 +21,6 @@ namespace ViaThinkSoft\RateLimitingChallenge;
 
 class ClientChallenge {
 
-	const OPEN_TRANS_DIR = __DIR__.'/cache';
-
 	private static function tryDownloadPhpSha3() {
 		// Download file if required (usually composer should do it)
 		if (file_exists(__DIR__.'/Sha3.php')) include_once __DIR__.'/Sha3.php';
@@ -56,8 +54,11 @@ class ClientChallenge {
 	}
 
 	private static function getOpenTransFileName($ip_target, $random) {
-		// Delete challenges which were never completed
-		$files = glob(self::OPEN_TRANS_DIR.'/*.tmp');
+		$dir = defined('VTS_CS_OPEN_TRANS_DIR') ? VTS_CS_OPEN_TRANS_DIR : __DIR__.'/cache';
+		if ($dir == '') $dir = '.'; /** @phpstan-ignore-line */
+
+		// First, delete challenges which were never completed
+		$files = glob($dir.'/*.tmp');
 		$expire = strtotime('-3 DAYS');
 		foreach ($files as $file) {
 			if (!is_file($file)) continue;
@@ -65,7 +66,7 @@ class ClientChallenge {
 			@unlink($file);
 		}
 
-		return self::OPEN_TRANS_DIR.'/'.self::sha3_512($ip_target.'/'.$random).'.tmp';
+		return $dir.'/'.self::sha3_512($ip_target.'/'.$random).'.tmp';
 	}
 
 	public static function checkValidation($client_response, $max_time=10, $server_secret) {

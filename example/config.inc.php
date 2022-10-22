@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 
+define('VTS_CS_OPEN_TRANS_DIR', __DIR__.'/../cache/');
 define('VTS_CS_SERVER_SECRET', '1234567890'); // PLEASE CHANGE THIS VALUE TO SOMETHING RANDOM!
 define('MAX_TIME', 15); // seconds
 define('COMPLEXITY', 50000);
