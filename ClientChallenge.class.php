@@ -70,13 +70,22 @@ class ClientChallenge {
 	}
 
 	public static function checkValidation($client_response, $max_time=10, $server_secret) {
+		if (!is_array($client_response)) throw new \Exception('Challenge response is invalid');
+		if (count($client_response) != 5) throw new \Exception('Challenge response is invalid');
 		list($starttime, $ip_target, $challenge, $answer, $challenge_integrity) = $client_response;
+		if (!is_numeric($starttime)) throw new \Exception('Challenge response is invalid');
+		if (!is_string($ip_target)) throw new \Exception('Challenge response is invalid');
+		if (!is_string($challenge)) throw new \Exception('Challenge response is invalid');
+		if (!is_numeric($answer)) throw new \Exception('Challenge response is invalid');
+		if (!is_string($challenge_integrity)) throw new \Exception('Challenge response is invalid');
+
 		$open_trans_file = self::getOpenTransFileName($ip_target, $answer, $server_secret);
 
-		if ($ip_target != $_SERVER['REMOTE_ADDR']) {
-			throw new \Exception('Wrong IP');
+		$current_ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown');
+		if ($ip_target != $current_ip) {
+			throw new \Exception("IP address has changed. Please try again. (current IP $current_ip, expected $ip_target)");
 		} else if (time()-$starttime > $max_time) {
-			throw new \Exception('Challenge expired');
+			throw new \Exception('Challenge expired. Please try again.');
 		} else if ($challenge_integrity != self::sha3_512_hmac($challenge,$server_secret)) {
 			throw new \Exception('Challenge integrity failed');
 		} else if ($challenge !== self::sha3_512($starttime.'/'.$ip_target.'/'.$answer)) {
